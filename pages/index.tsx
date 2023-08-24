@@ -1,6 +1,8 @@
-import { ShopLayout } from '@/components';
-import { Typography } from '@mui/material';
 import { NextPage } from 'next';
+import { Typography } from '@mui/material';
+
+import { ProductList, ShopLayout } from '@/components';
+import { initialData } from '@/database/products';
 
 const Home: NextPage = () => {
   return (
@@ -11,6 +13,8 @@ const Home: NextPage = () => {
       <Typography variant='h2' sx={{ mb: 1 }}>
         All products
       </Typography>
+     {/*  TODO change as any */}
+      <ProductList products={initialData.products as any} />
     </ShopLayout>
   );
 };
