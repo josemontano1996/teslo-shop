@@ -21,7 +21,7 @@ export const OrderSummary = () => {
       <Grid item xs={6} display='flex' justifyContent='end'>
         <Typography>{`$${25.3}`}</Typography>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={6} sx={{mt:1}}>
         <Typography variant='subtitle1'>Total Price</Typography>
       </Grid>
       <Grid item xs={6} display='flex' justifyContent='end'>

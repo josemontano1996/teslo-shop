@@ -4,7 +4,7 @@ import { Box, Button, Card, CardContent, Divider, Grid, Typography } from '@mui/
 const CartPage = () => {
   return (
     <ShopLayout title='Cart' pageDescription='Shop shopping cart'>
-      <Typography variant='h1' component='h1'>
+      <Typography variant='h1' component='h1' sx={{mb:2}}>
         Cart
       </Typography>
       <Grid container>
