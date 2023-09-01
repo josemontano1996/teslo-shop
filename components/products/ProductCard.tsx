@@ -24,7 +24,7 @@ export const ProductCard: FC<Props> = ({ product }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Card>
-        <NextLink href='/product/slug'>
+        <NextLink href={`/product/${product.slug}`}>
           <Link component={'span'}>
             <CardActionArea>
               <CardMedia

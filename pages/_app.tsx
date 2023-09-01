@@ -8,6 +8,7 @@ import type { AppProps } from 'next/app';
 import { SWRConfig } from 'swr';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { lightTheme } from '@/themes';
+import { UIProvider } from '@/context';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -16,10 +17,12 @@ export default function App({ Component, pageProps }: AppProps) {
         fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
       }}
     >
-      <ThemeProvider theme={lightTheme}>
-        <CssBaseline />
-        <Component {...pageProps} />
-      </ThemeProvider>
+      <UIProvider>
+        <ThemeProvider theme={lightTheme}>
+          <CssBaseline />
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </UIProvider>
     </SWRConfig>
   );
 }

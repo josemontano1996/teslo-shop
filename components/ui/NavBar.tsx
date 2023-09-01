@@ -1,14 +1,17 @@
 import NextLink from 'next/link';
+import { useContext } from 'react';
+import { useRouter } from 'next/router';
 import { AppBar, Badge, Box, Button, IconButton, Toolbar, Typography } from '@mui/material';
 import { Link } from '@mui/material';
 import { SearchOutlined, ShoppingCartOutlined } from '@mui/icons-material';
-import { useRouter } from 'next/router';
+import { UIContext } from '@/context';
 
 export const NavBar = () => {
+  const { toggleSideMenu } = useContext(UIContext);
   const { pathname } = useRouter();
 
   const useColor = (category: String) => {
-    return pathname === (`/category/${category}`) ? 'primary' : 'info';
+    return pathname === `/category/${category}` ? 'primary' : 'info';
   };
 
   return (
@@ -52,7 +55,7 @@ export const NavBar = () => {
             </IconButton>
           </Link>
         </NextLink>
-        <Button>Menu</Button>
+        <Button onClick={toggleSideMenu}>Menu</Button>
       </Toolbar>
     </AppBar>
   );
