@@ -37,7 +37,7 @@ export const SideMenu = () => {
   const onSearchTerm = () => {
     if (searchTerm.trim().length === 0) return;
 
-    navigateTo(`search/${searchTerm}`);
+    navigateTo(`/search/${searchTerm}`);
   };
 
   const navigateTo = (url: string) => {
@@ -56,6 +56,7 @@ export const SideMenu = () => {
         <List>
           <ListItem>
             <Input
+              autoFocus
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => (e.key === 'Enter' ? onSearchTerm() : null)}
@@ -63,9 +64,7 @@ export const SideMenu = () => {
               placeholder='Search...'
               endAdornment={
                 <InputAdornment position='end'>
-                  <IconButton
-                    onClick={onSearchTerm}
-                  >
+                  <IconButton onClick={onSearchTerm}>
                     <SearchOutlined />
                   </IconButton>
                 </InputAdornment>
