@@ -1,19 +1,33 @@
 import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import { Box, Button, Chip, Grid, Typography } from '@mui/material';
 import { ItemCounter, ProductSizeSelector, ProductSlideShow, ShopLayout } from '@/components';
-import { IProduct } from '@/interfaces';
+import { IProduct, ISize } from '@/interfaces';
 import { dbProducts } from '@/database';
+import { useState } from 'react';
+import { ICartProduct } from '../../../interfaces/Cart';
 
 interface Props {
   product: IProduct;
 }
 
 const ProductPage: NextPage<Props> = ({ product }) => {
-  /*  const router = useRouter();
-  const { products: product, isLoading } = useProducts(`/products/${router.query.slug}`);
-  if (isLoading) {
-    return <h1>Loading</h1>;
-  } */
+  const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+    _id: product._id,
+    images: product.images[0],
+    price: product.price,
+    size: undefined,
+    slug: product.slug,
+    title: product.title,
+    gender: product.gender,
+    quantity: 1,
+  });
+
+  const selectedSize = (size: ISize) => {
+    setTempCartProduct((currentProduct) => ({
+      ...currentProduct,
+      size,
+    }));
+  };
 
   return (
     <ShopLayout title={product.title} pageDescription={product.description}>
@@ -35,14 +49,22 @@ const ProductPage: NextPage<Props> = ({ product }) => {
             <Box sx={{ my: 2 }}>
               <Typography variant='subtitle2'>Quantity</Typography>
               <ItemCounter />
-              <ProductSizeSelector sizes={product.sizes} />
+              <ProductSizeSelector
+                sizes={product.sizes}
+                selectedSize={tempCartProduct.size}
+                onSelectedSize={selectedSize}
+              />
             </Box>
 
             {/* Add to Cart */}
-            <Button color='secondary' className='circular-btn'>
-              Add to cart
-            </Button>
-            {/* <Chip label='Out of stock' color='error'variant='outlined'/> */}
+            {product.inStock > 0 ? (
+              <Button color='secondary' className='circular-btn'>
+                {' '}
+                {tempCartProduct.size ? 'Add to cart' : 'Select a size'}
+              </Button>
+            ) : (
+              <Chip label='Out of stock' color='error' variant='outlined' />
+            )}
 
             {/* Description */}
             <Box sx={{ mt: 3 }}>
@@ -68,10 +90,10 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     fallback: 'blocking',
   };
 };
- 
+
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params as { slug: string }
-  
+  const { slug } = params as { slug: string };
+
   const product = await dbProducts.getProductBySlug(slug);
 
   if (!product) {
