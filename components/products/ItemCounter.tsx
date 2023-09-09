@@ -10,7 +10,7 @@ interface Props {
   updateQuantity: (newValue: number) => void;
 }
 
-export const ItemCounter: FC<Props> = ({ currentValue, updateQuantity, maxValue }) => {
+export const ItemCounter: FC<Props> = ({ currentValue, updateQuantity, maxValue}) => {
   const addOrRemove = (value: number) => {
     if (value === -1) {
       if (currentValue > 1) {
