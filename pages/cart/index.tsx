@@ -1,8 +1,6 @@
-import { useContext } from 'react';
 import { Box, Button, Card, CardContent, Divider, Grid, Typography } from '@mui/material';
-
 import { CartList, OrderSummary, ShopLayout } from '@/components';
-import { CartContext } from '@/context';
+
 
 const CartPage = () => {
   return (

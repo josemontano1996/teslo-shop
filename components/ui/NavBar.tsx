@@ -14,11 +14,12 @@ import {
 } from '@mui/material';
 import { Link } from '@mui/material';
 import { ClearOutlined, SearchOutlined, ShoppingCartOutlined } from '@mui/icons-material';
-import { UIContext } from '@/context';
+import { CartContext, UIContext } from '@/context';
 
 export const NavBar = () => {
-  const { toggleSideMenu } = useContext(UIContext);
   const { pathname, push } = useRouter();
+  const { toggleSideMenu } = useContext(UIContext);
+  const { numberOfItems } = useContext(CartContext);
 
   const useColor = (category: String) => {
     return pathname === `/category/${category}` ? 'primary' : 'info';
@@ -99,7 +100,7 @@ export const NavBar = () => {
         <NextLink href='/cart'>
           <Link component='span'>
             <IconButton>
-              <Badge badgeContent={2} color='secondary'>
+              <Badge badgeContent={numberOfItems > 9 ? '+9' : numberOfItems} color='secondary'>
                 <ShoppingCartOutlined />
               </Badge>
             </IconButton>
