@@ -27,7 +27,7 @@ yarn dev
 
 ## Seed the database with prepopulated data
 
-Make a API call to:
+Make an API call to:
 
 ```
 http://localhost:3000/api/seed
