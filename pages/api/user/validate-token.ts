@@ -17,35 +17,37 @@ type Data =
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
   switch (req.method) {
-    case 'POST':
-      return loginUser(req, res);
+    case 'GET':
+      return checkJWT(req, res);
 
     default:
       res.status(400).json({ msg: 'Bad request' });
   }
 }
 
-const loginUser = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
-  const { email = '', password = '' } = req.body;
+const checkJWT = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
+  const { token = '' } = req.cookies;
+
+  let userId = '';
+
+  try {
+    userId = await JWT.isValidToken(token);
+  } catch (error) {
+    return res.status(401).json({ msg: 'Auth token is not valid' });
+  }
 
   await db.connect();
-  const user = await User.findOne({ email });
+  const user = await User.findById(userId).lean();
   await db.disconnect();
 
   if (!user) {
-    return res.status(400).json({ msg: 'Email or password not valid - EMAIL' });
+    return res.status(400).json({ msg: 'User doesnt exist' });
   }
 
-  if (!bcrypt.compareSync(password, user.password!)) {
-    return res.status(400).json({ msg: 'Email or password not valid - PASSWORD' });
-  }
-
-  const { role, name, _id } = user;
-
-  const token = JWT.signToken(_id, email);
+  const { _id, email, role, name } = user;
 
   return res.status(200).json({
-    token,
+    token: JWT.signToken(_id, email),
     user: { email, role, name },
   });
 };
