@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { ErrorOutline } from '@mui/icons-material';
+import { AuthContext } from '@/context';
 import { AuthLayout } from '@/components';
 import { validations } from '@/utils';
 import { tesloApi } from '@/api';
@@ -14,26 +16,30 @@ type FormData = {
 };
 
 const RegisterPage = () => {
+  const router = useRouter();
+  const { registerUser } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const onRegisterForm = async ({ email, password, name }: FormData) => {
     setShowError(false);
-    try {
-      const { data } = await tesloApi.post('/user/register', { email, password, name });
-      const { token, user } = data;
-      console.log(token, user);
-    } catch (error) {
-      console.log('Error in register form');
+    const { hasError, message } = await registerUser(email, password, name);
+
+    if (hasError) {
       setShowError(true);
+      setErrorMessage(message!);
       setTimeout(() => {
         setShowError(false);
       }, 3000);
+      return;
     }
+
+    router.replace('/');
   };
 
   return (
