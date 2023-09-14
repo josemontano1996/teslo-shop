@@ -1,11 +1,22 @@
 import NextLink from 'next/link';
 import { CartList, OrderSummary, ShopLayout } from '@/components';
 import { Typography, Grid, Card, CardContent, Divider, Box, Button, Link } from '@mui/material';
+import { useContext } from 'react';
+import { CartContext } from '@/context';
+import { countries } from '@/utils';
 
 const SummaryPage = () => {
+  const { shippingAddress } = useContext(CartContext);
+
+  if (!shippingAddress) {
+    return <></>;
+  }
+
+  const { firstName, lastName, address, address2, city, country, phone, zip } = shippingAddress;
+
   return (
     <ShopLayout title='Order summary' pageDescription='Order summary'>
-      <Typography variant='h1' component='h1' sx={{mb:2}}>
+      <Typography variant='h1' component='h1' sx={{ mb: 2 }}>
         Order summary
       </Typography>
       <Grid container>
@@ -19,18 +30,23 @@ const SummaryPage = () => {
 
               <Divider sx={{ my: 1 }} />
               <Box display='flex' justifyContent='space-between'>
-              <Typography variant='subtitle1'>Delivery Data</Typography>
+                <Typography variant='subtitle1'>Delivery Data</Typography>
                 <NextLink href='/checkout/address'>
                   <Link component='span' underline='always'>
                     Edit
                   </Link>
                 </NextLink>
               </Box>
-              <Typography>Josema Montano</Typography>
-              <Typography>+45 25125215</Typography>
-              <Typography>Alguna calle</Typography>
-              <Typography>Ciudad, 526358</Typography>
-              <Typography>Pais</Typography>
+              <Typography>
+                {lastName}, {firstName}
+              </Typography>
+              <Typography>{phone}</Typography>
+              <Typography>{address}</Typography>
+              <Typography>{address2}</Typography>
+              <Typography>
+                {city}, {zip}
+              </Typography>
+              <Typography>{countries.find((c) => c.code === country)?.name}</Typography>
 
               <Divider sx={{ my: 1 }} />
 

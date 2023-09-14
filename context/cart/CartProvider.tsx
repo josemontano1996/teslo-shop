@@ -1,7 +1,7 @@
-import { FC, ReactNode, useEffect, useReducer } from 'react';
+import { FC, ReactNode, useEffect, useReducer, useContext } from 'react';
 import Cookie from 'js-cookie';
 import { CartContext, cartReducer } from './';
-import { ICartProduct } from '@/interfaces';
+import { ICartProduct, IShippingAddress } from '@/interfaces';
 
 export interface CartState {
   isLoaded: boolean;
@@ -10,6 +10,8 @@ export interface CartState {
   subTotal: number;
   tax: number;
   total: number;
+
+  shippingAddress?: IShippingAddress;
 }
 
 const CART_INITIAL_STATE: CartState = {
@@ -19,6 +21,7 @@ const CART_INITIAL_STATE: CartState = {
   subTotal: 0,
   tax: 0,
   total: 0,
+  shippingAddress: undefined,
 };
 
 interface Props {
@@ -34,6 +37,26 @@ export const CartProvider: FC<Props> = ({ children }) => {
       dispatch({ type: 'Cart-LoadCart from cookies | storage', payload: cookieProducts });
     } catch (error) {
       dispatch({ type: 'Cart-LoadCart from cookies | storage', payload: [] });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Cookie.get('firstName')) {
+      const address: any = {
+        firstName: '',
+        lastName: '',
+        address: '',
+        address2: '',
+        zip: '',
+        city: '',
+        country: '',
+        phone: '',
+      };
+
+      for (const [key, value] of Object.entries(address)) {
+        address[key] = Cookie.get(key) || '';
+      }
+      dispatch({ type: 'Cart-Load address from cookies', payload: address });
     }
   }, []);
 
@@ -86,6 +109,13 @@ export const CartProvider: FC<Props> = ({ children }) => {
     dispatch({ type: 'Cart-Remove product', payload: product });
   };
 
+  const updateAddress = (address: IShippingAddress) => {
+    for (const [key, value] of Object.entries(address)) {
+      Cookie.set(key, value);
+    }
+    dispatch({ type: 'Cart-Update address', payload: address });
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -93,6 +123,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
         addProductToCart,
         updateCartQuantity,
         removeCartProduct,
+        updateAddress,
       }}
     >
       {children}
