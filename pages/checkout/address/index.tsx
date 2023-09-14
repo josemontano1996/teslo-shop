@@ -1,3 +1,4 @@
+import { GetServerSideProps } from 'next';
 import { ShopLayout } from '@/components';
 import {
   Box,
@@ -10,6 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { JWT } from '@/utils';
 
 const AddressPage = () => {
   return (
@@ -57,5 +59,34 @@ const AddressPage = () => {
     </ShopLayout>
   );
 };
+
+/* 
+Creating a custom function for only serving the paged to authenticated users
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { token = '' } = req.cookies;
+  let isValidToken = false;
+
+  try {
+    await JWT.isValidToken(token);
+    isValidToken = true;
+  } catch (error) {
+    isValidToken = false;
+  }
+
+  if (!isValidToken) {
+    return {
+      redirect: {
+        destination: '/auth/login?p=/checkout/address',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}; 
+*/
 
 export default AddressPage;
