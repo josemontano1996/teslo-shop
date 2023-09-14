@@ -30,7 +30,7 @@ import { AuthContext, UIContext } from '@/context';
 
 export const SideMenu = () => {
   const router = useRouter();
-  const { isLoggedIn, user } = useContext(AuthContext);
+  const { isLoggedIn, logout, user } = useContext(AuthContext);
   const { isMenuOpen, toggleSideMenu } = useContext(UIContext);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,7 +88,7 @@ export const SideMenu = () => {
                 </ListItemIcon>
                 <ListItemText primary={'My Orders'} />
               </ListItemButton>
-              <ListItemButton>
+              <ListItemButton onClick={logout}>
                 <ListItemIcon>
                   <LoginOutlined />
                 </ListItemIcon>
@@ -98,14 +98,14 @@ export const SideMenu = () => {
           )}
 
           {!isLoggedIn && (
-            <ListItemButton>
+            <ListItemButton onClick={() => navigateTo(`/auth/login?p=${router.asPath}`)}>
               <ListItemIcon>
                 <VpnKeyOutlined />
               </ListItemIcon>
               <ListItemText primary={'Log in'} />
             </ListItemButton>
           )}
-          
+
           <Divider />
           <ListItem
             onClick={() => navigateTo('/category/men')}

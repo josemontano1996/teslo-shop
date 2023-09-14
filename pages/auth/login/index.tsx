@@ -38,7 +38,9 @@ const LoginPage = () => {
       return;
     }
 
-    router.replace('/');
+    const destination = router.query.p?.toString() || '/';
+
+    router.replace(destination);
   };
 
   return (
@@ -99,7 +101,9 @@ const LoginPage = () => {
               </Button>
             </Grid>
             <Grid item xs={12} display='flex' justifyContent='end'>
-              <NextLink href='/auth/register'>
+              <NextLink
+                href={router.query.p ? `/auth/register?p=${router.query.p}` : '/auth/register'}
+              >
                 <Link component='span' underline='always'>
                   Not registered yet?
                 </Link>
