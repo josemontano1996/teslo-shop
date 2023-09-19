@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import Credentials from 'next-auth/providers/credentials';
+import { dbUsers } from '@/database';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,9 +16,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password:', type: 'password', placeholder: 'Your password' },
       },
       async authorize(credentials) {
-        console.log({ credentials });
+        return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password);
 
-        return { name: 'juan', email: 'juan@juan.com', role: 'admin' };
+        /*  return { name: 'juan', email: 'juan@juan.com', role: 'admin' }; */
       },
     }),
     GithubProvider({
@@ -34,7 +35,7 @@ export const authOptions: NextAuthOptions = {
 
         switch (account.type) {
           case 'oauth':
-            //TODO crear usuario y ver si existe en base de datos
+            token.user = await dbUsers.oAuthToDbUser(user?.email || '', user?.name || '');
             break;
           case 'credentials':
             token.user = user;

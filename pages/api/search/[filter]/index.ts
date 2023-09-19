@@ -28,7 +28,9 @@ const searchProducts = async (req: NextApiRequest, res: NextApiResponse<Data>) =
   filter = filter.toString().toLowerCase();
 
   await db.connect();
-  const products = await Product.find({ $text: { $search: filter } }).select('title images price inStock -_id').lean();
+  const products = await Product.find({ $text: { $search: filter } })
+    .select('title images price inStock -_id')
+    .lean();
   await db.disconnect();
 
   if (!products) {
