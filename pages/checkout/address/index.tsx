@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { countries } from '@/utils';
 import { IShippingAddress } from '@/interfaces';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { CartContext } from '@/context';
 
 type FormData = IShippingAddress;
@@ -41,9 +41,23 @@ const AddressPage = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormData>({
-    defaultValues: getAddressFromCookies(),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      address: '',
+      address2: '',
+      zip: '',
+      city: '',
+      country: countries[0].name,
+      phone: '',
+    },
   });
+
+  useEffect(() => {
+    reset(getAddressFromCookies());
+  }, [reset]);
 
   const onSubmitAddress = (data: FormData) => {
     updateAddress(data);
@@ -118,20 +132,14 @@ const AddressPage = () => {
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <TextField
-                select
+                /* select */
                 variant='filled'
                 label='Country'
-                defaultValue={Cookies.get('country') || countries[0].code}
+                /*    defaultValue={Cookies.get('country') || countries[0].code} */
                 {...register('country', { required: 'This input is required' })}
                 error={!!errors.country}
                 helperText={errors.country?.message}
-              >
-                {countries.map((country) => (
-                  <MenuItem key={country.code} value={country.code}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              ></TextField>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
