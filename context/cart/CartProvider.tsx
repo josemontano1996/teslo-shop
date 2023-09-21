@@ -134,7 +134,6 @@ export const CartProvider: FC<Props> = ({ children }) => {
       total: state.total,
       isPaid: false,
     };
-    console.log(body);
 
     try {
       const { data } = await tesloApi.post('/orders', body);
