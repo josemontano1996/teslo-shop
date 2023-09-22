@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
 
 // Only the paths declared in here will run the middleware
 export const config = {
-  matcher: ['/checkout/:path*'],
+  matcher: ['/checkout/:path*', '/orders/:path*'],
 };
 
 /* CUSTOM AUTHENTICATION MIDDLEWARE
