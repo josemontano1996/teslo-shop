@@ -3,6 +3,7 @@ import Cookie from 'js-cookie';
 import { CartContext, cartReducer } from './';
 import { ICartProduct, IOrder, IShippingAddress } from '@/interfaces';
 import { tesloApi } from '@/api';
+import axios from 'axios';
 
 export interface CartState {
   isLoaded: boolean;
@@ -117,7 +118,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
     dispatch({ type: 'Cart-Update address', payload: address });
   };
 
-  const createOrder = async () => {
+  const createOrder = async (): Promise<{ hasError: boolean; message: string }> => {
     if (!state.shippingAddress) {
       throw new Error('There is no delivery address');
     }
@@ -136,10 +137,23 @@ export const CartProvider: FC<Props> = ({ children }) => {
     };
 
     try {
-      const { data } = await tesloApi.post('/orders', body);
-      console.log(data);
+      const { data } = await tesloApi.post<IOrder>('/orders', body);
+      dispatch({ type: 'Cart-Order Completed' });
+      return {
+        hasError: false,
+        message: data._id!,
+      };
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        return {
+          hasError: true,
+          message: error.response?.data.message || 'Total amounts of prices dont match database',
+        };
+      }
+      return {
+        hasError: true,
+        message: 'Not controlled error, contact admin',
+      };
     }
   };
 
