@@ -43,7 +43,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE) || 0;
     const backendTotal = subTotal * (taxRate + 1);
-    
+
     if (total !== backendTotal) {
       throw new Error('Total price doesnt match');
     }
@@ -51,7 +51,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     const userId = session.user._id;
 
     const newOrder = new Order({ ...req.body, isPaid: false, user: userId });
-  
+    newOrder.total = Math.round(newOrder.total * 100) / 100; //making out total price to have only 2 decimals
     await newOrder.save();
     await db.disconnect();
 
