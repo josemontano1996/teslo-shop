@@ -21,7 +21,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { orderItems, total } = req.body as IOrder;
 
   const session: any = await getServerSession(req, res, authOptions);
-
+  console.log(session);
   if (!session) {
     return res.status(401).json({ msg: 'Must be authenticated for doing this action' });
   }
@@ -47,7 +47,6 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     if (total !== backendTotal) {
       throw new Error('Total price doesnt match');
     }
-
     const userId = session.user._id;
 
     const newOrder = new Order({ ...req.body, isPaid: false, user: userId });
