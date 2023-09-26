@@ -1,8 +1,8 @@
 import { GetServerSideProps, NextPage } from 'next';
-import NextLink from 'next/link';
-import { Typography, Grid, Card, CardContent, Divider, Box, Link, Chip } from '@mui/material';
-import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
 import { getServerSession } from 'next-auth';
+import { PayPalButtons } from '@paypal/react-paypal-js';
+import { Typography, Grid, Card, CardContent, Divider, Box, Link, Chip } from '@mui/material';
+
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { dbOrders } from '@/database';
 import { CartList, OrderSummary, PaymentStatusChip, ShopLayout } from '@/components';
@@ -58,9 +58,32 @@ const OrderPage: NextPage<Props> = ({ order }) => {
               <OrderSummary orderBill={orderBill} />
 
               <Box sx={{ mt: 3 }}>
-                {/* TODO pagar */}
-                {!isPaid ? <h1>Pay now</h1> : ''}
                 <PaymentStatusChip isPaid={isPaid} />
+                {!isPaid ? (
+                  <PayPalButtons
+                    createOrder={(data, actions) => {
+                      return actions.order.create({
+                        purchase_units: [
+                          {
+                            amount: {
+                              value: `${order.total}`,
+                            },
+                          },
+                        ],
+                      });
+                    }}
+                    onApprove={(data, actions) => {
+                      return actions.order!.capture().then((details) => {
+                       // onOrderCompleted(details);
+                         console.log({ details  })
+                        // const name = details.payer.name.given_name;
+                        // alert(`Transaction completed by ${name}`);
+                      });
+                    }}
+                  />
+                ) : (
+                  ''
+                )}
               </Box>
             </CardContent>
           </Card>
