@@ -21,7 +21,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { orderItems, total } = req.body as IOrder;
 
   const session: any = await getServerSession(req, res, authOptions);
-  console.log(session);
+
   if (!session) {
     return res.status(401).json({ msg: 'Must be authenticated for doing this action' });
   }

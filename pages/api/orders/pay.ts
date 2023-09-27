@@ -49,7 +49,7 @@ const getPaypalBearerToken = async (): Promise<string | null> => {
 const payOrder = async (req: NextApiRequest, res: NextApiResponse) => {
   const { transactionId = '', orderId = '' } = req.body;
   const session: any = await getServerSession(req, res, authOptions);
-  console.log(session);
+
   if (!isValidObjectId(orderId)) {
     return res.status(400).json({ msg: 'Invalid orderId' });
   }
@@ -74,9 +74,15 @@ const payOrder = async (req: NextApiRequest, res: NextApiResponse) => {
 
   await db.connect();
   const dbOrder = await Order.findById(orderId);
+
   if (!dbOrder) {
     await db.disconnect();
     return res.status(400).json({ msg: 'Order doesnt exists in Db' });
+  }
+
+  if (JSON.parse(JSON.stringify(dbOrder.user)) !== session.user._id) {
+    await db.disconnect();
+    return res.status(401).json({ msg: 'You are not auhtorized for this transaction' });
   }
 
   if (dbOrder.total !== Number(data.purchase_units[0].amount.value)) {
@@ -86,7 +92,8 @@ const payOrder = async (req: NextApiRequest, res: NextApiResponse) => {
 
   dbOrder.transactionId = transactionId;
   dbOrder.isPaid = true;
-  dbOrder.save();
+  await dbOrder.save();
+
   await db.disconnect();
 
   return res.status(200).json({ msg: 'Order payed' });
