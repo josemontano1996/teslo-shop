@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { GetServerSideProps } from 'next';
 import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons-material';
@@ -53,9 +53,40 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
+    setValue,
+    watch,
   } = useForm<FormData>({
     defaultValues: product,
   });
+
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      console.log({ value, name, type });
+      if (name === 'title') {
+        const newSlug =
+          value.title?.trim().replaceAll(' ', '-').replaceAll("'", '').toLocaleLowerCase() || '';
+
+        setValue('slug', newSlug);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, setValue]);
+
+  const onChangeSize = (size: ISize) => {
+    const currentSizes = getValues('sizes');
+
+    if (currentSizes.includes(size)) {
+      return setValue(
+        'sizes',
+        currentSizes.filter((s) => s !== size),
+        { shouldValidate: true }
+      );
+    }
+
+    setValue('sizes', [...currentSizes, size], { shouldValidate: true });
+  };
 
   const onDeleteTag = (tag: string) => {};
 
@@ -101,6 +132,7 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               label='Description'
               variant='filled'
               fullWidth
+              rows='5'
               multiline
               sx={{ mb: 1 }}
               {...register('description', {
@@ -140,49 +172,61 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
             />
 
             <Divider sx={{ my: 1 }} />
+            <Box display='flex' flexDirection='column'>
+              <FormControl sx={{ mb: 1 }}>
+                <FormLabel>Type</FormLabel>
+                <RadioGroup
+                  row
+                  value={getValues('type')}
+                  onChange={({ target }) =>
+                    setValue('type', target.value as IType, { shouldValidate: true })
+                  }
+                >
+                  {validTypes.map((option) => (
+                    <FormControlLabel
+                      key={option}
+                      value={option}
+                      control={<Radio color='secondary' />}
+                      label={capitalize(option)}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
 
-            <FormControl sx={{ mb: 1 }}>
-              <FormLabel>Type</FormLabel>
-              <RadioGroup
-                row
-                // value={ status }
-                // onChange={ onStatusChanged }
-              >
-                {validTypes.map((option) => (
-                  <FormControlLabel
-                    key={option}
-                    value={option}
-                    control={<Radio color='secondary' />}
-                    label={capitalize(option)}
-                  />
-                ))}
-              </RadioGroup>
-            </FormControl>
-
-            <FormControl sx={{ mb: 1 }}>
-              <FormLabel>Gender</FormLabel>
-              <RadioGroup
-                row
-                // value={ status }
-                // onChange={ onStatusChanged }
-              >
-                {validGender.map((option) => (
-                  <FormControlLabel
-                    key={option}
-                    value={option}
-                    control={<Radio color='secondary' />}
-                    label={capitalize(option)}
-                  />
-                ))}
-              </RadioGroup>
-            </FormControl>
-
-            <FormGroup>
-              <FormLabel>Sizes</FormLabel>
-              {validSizes.map((size) => (
-                <FormControlLabel key={size} control={<Checkbox />} label={size} />
-              ))}
-            </FormGroup>
+              <FormControl sx={{ mb: 1 }}>
+                <FormLabel>Gender</FormLabel>
+                <RadioGroup
+                  row
+                  {...register('gender')}
+                  value={getValues('gender')}
+                  onChange={({ target }) =>
+                    setValue('gender', target.value as any, { shouldValidate: true })
+                  }
+                >
+                  {validGender.map((option) => (
+                    <FormControlLabel
+                      key={option}
+                      value={option}
+                      control={<Radio color='secondary' />}
+                      label={capitalize(option)}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+              <FormGroup>
+                <FormLabel>Sizes</FormLabel>
+                <Box display='flex'>
+                  {validSizes.map((size) => (
+                    <FormControlLabel
+                      key={size}
+                      control={<Checkbox checked={getValues('sizes').includes(size as ISize)} />}
+                      label={size}
+                      onChange={() => onChangeSize(size as ISize)}
+                    />
+                  ))}
+                </Box>
+              </FormGroup>
+            </Box>
           </Grid>
 
           {/* Tags e imagenes */}
@@ -208,7 +252,6 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               fullWidth
               sx={{ mb: 1 }}
               helperText='Press [spacebar] to add'
-             
             />
 
             <Box
