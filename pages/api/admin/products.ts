@@ -27,9 +27,14 @@ async function getProducts(req: NextApiRequest, res: NextApiResponse<Data>) {
   const products = await Product.find().sort({ title: 'asc' }).lean();
   await db.disconnect();
 
-  //TODO : update images
+  const updatedProducts = products.map((product) => {
+    product.images = product.images.map((image) => {
+      return image.includes('http') ? image : `${process.env.HOST_NAME}products/${image}`;
+    });
+    return product;
+  });
 
-  return res.status(200).json(products);
+  return res.status(200).json(updatedProducts);
 }
 
 async function updateProduct(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -41,7 +46,6 @@ async function updateProduct(req: NextApiRequest, res: NextApiResponse<Data>) {
   if (images.length < 2) {
     return res.status(400).json({ msg: 'A minimum of 2 images is necesary' });
   }
-
 
   try {
     await db.connect();
