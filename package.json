@@ -25,6 +25,7 @@
     "bcryptjs": "^2.4.3",
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",
+    "formidable": "^3.5.1",
     "jose": "^4.14.6",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
@@ -39,6 +40,7 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@types/formidable": "^3.4.3",
     "@types/js-cookie": "^3.0.3"
   }
 }

@@ -1,4 +1,5 @@
-import { FC, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { GetServerSideProps } from 'next';
 import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons-material';
@@ -26,6 +27,7 @@ import { AdminLayout } from '@/components';
 import { dbProducts } from '@/database';
 import { IProduct, ISize, IType } from '@/interfaces';
 import { tesloApi } from '@/api';
+import { Product } from '@/models';
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats'];
 const validGender = ['men', 'women', 'kid', 'unisex'];
@@ -50,8 +52,11 @@ interface Props {
 }
 
 const ProductAdminPage: FC<Props> = ({ product }) => {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [newTag, setNewTag] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -122,6 +127,26 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     );
   };
 
+  const onFilesSelected = async ({ target }: ChangeEvent<HTMLInputElement>) => {
+    if (!target.files || target.files.length === 0) {
+      return;
+    }
+
+    try {
+      for (const file of target.files) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const { data } = await tesloApi.post<{ msg: string }>('/admin/upload', formData);
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    console.log(target.files);
+  };
+
   const onSubmit = async (formData: FormData) => {
     if (formData.images.length < 2) return alert('Minimum 2 images required');
     setIsSaving(true);
@@ -129,11 +154,12 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     try {
       const { data } = await tesloApi({
         url: '/admin/products',
-        method: 'PUT',
+        method: formData._id ? 'PUT' : 'POST',
         data: formData,
       });
+      console.log(data);
       if (!formData._id) {
-        //TODO: recargar navegador
+        router.replace(`/admin/products/${data.slug}`);
       } else {
         setIsSaving(false);
       }
@@ -202,7 +228,6 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               sx={{ mb: 1 }}
               {...register('inStock', {
                 required: 'This field is required',
-                minLength: { value: 2, message: 'Minimum 2 characters' },
               })}
               error={!!errors.inStock}
               helperText={errors.inStock?.message}
@@ -243,12 +268,10 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                   ))}
                 </RadioGroup>
               </FormControl>
-
               <FormControl sx={{ mb: 1 }}>
                 <FormLabel>Gender</FormLabel>
                 <RadioGroup
                   row
-                  {...register('gender')}
                   value={getValues('gender')}
                   onChange={({ target }) =>
                     setValue('gender', target.value as any, { shouldValidate: true })
@@ -264,19 +287,22 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                   ))}
                 </RadioGroup>
               </FormControl>
-              <FormGroup>
-                <FormLabel>Sizes</FormLabel>
-                <Box display='flex'>
-                  {validSizes.map((size) => (
-                    <FormControlLabel
-                      key={size}
-                      control={<Checkbox checked={getValues('sizes').includes(size as ISize)} />}
-                      label={size}
-                      onChange={() => onChangeSize(size as ISize)}
-                    />
-                  ))}
-                </Box>
-              </FormGroup>
+
+              <FormControl sx={{ mb: 1 }}>
+                <FormGroup>
+                  <FormLabel>Sizes</FormLabel>
+                  <Box display='flex'>
+                    {validSizes.map((size) => (
+                      <FormControlLabel
+                        key={size}
+                        control={<Checkbox checked={getValues('sizes').includes(size as ISize)} />}
+                        label={size}
+                        onChange={() => onChangeSize(size as ISize)}
+                      />
+                    ))}
+                  </Box>
+                </FormGroup>
+              </FormControl>
             </Box>
           </Grid>
 
@@ -336,9 +362,24 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
 
             <Box display='flex' flexDirection='column'>
               <FormLabel sx={{ mb: 1 }}>Images</FormLabel>
-              <Button color='secondary' fullWidth startIcon={<UploadOutlined />} sx={{ mb: 3 }}>
+              <Button
+                color='secondary'
+                fullWidth
+                startIcon={<UploadOutlined />}
+                sx={{ mb: 3 }}
+                onClick={() => fileInputRef.current?.click()}
+              >
                 Upload Image
               </Button>
+
+              <input
+                ref={fileInputRef}
+                type='file'
+                multiple
+                accept='image/png, image/gif, image/jpeg'
+                style={{ display: 'none' }}
+                onChange={onFilesSelected}
+              />
 
               <Chip label='Minimum 2 images required' color='error' variant='outlined' />
 
@@ -375,7 +416,17 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const { slug = '' } = query;
 
-  const product = await dbProducts.getProductBySlug(slug.toString());
+  let product: IProduct | null;
+
+  if (slug === 'new') {
+    //Create new product
+    const tempProduct = JSON.parse(JSON.stringify(new Product()));
+    delete tempProduct._id;
+    tempProduct.images = ['img1.jpg', 'img2.jgp'];
+    product = tempProduct;
+  } else {
+    product = await dbProducts.getProductBySlug(slug.toString());
+  }
 
   if (!product) {
     return {

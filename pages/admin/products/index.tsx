@@ -1,8 +1,8 @@
 import useSWR from 'swr';
 import NextLink from 'next/link';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { CardMedia, Grid, Link } from '@mui/material';
-import { CategoryOutlined } from '@mui/icons-material';
+import { Box, Button, CardMedia, Grid, Link } from '@mui/material';
+import { AddOutlined, CategoryOutlined } from '@mui/icons-material';
 import { AdminLayout } from '@/components';
 import { IProduct } from '@/interfaces';
 
@@ -30,7 +30,9 @@ const columns: GridColDef[] = [
     renderCell: ({ row }: GridRenderCellParams) => {
       return (
         <NextLink href={`/admin/products/${row.slug}`} passHref>
-          <Link component='span' underline='always'>{row.title}</Link>
+          <Link component='span' underline='always'>
+            {row.title}
+          </Link>
         </NextLink>
       );
     },
@@ -65,6 +67,11 @@ const AdminProductsPage = () => {
       subTitle='Product administration'
       icon={<CategoryOutlined />}
     >
+      <Box display='flex' justifyContent='end' sx={{ mb: 2 }}>
+        <Button startIcon={<AddOutlined />} color='secondary' href='/admin/products/new'>
+          Create new product
+        </Button>
+      </Box>
       <Grid container className='fadeIn'>
         <Grid item xs={12} sx={{ height: 650, width: '100%' }}>
           <DataGrid

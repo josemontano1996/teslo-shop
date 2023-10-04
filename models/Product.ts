@@ -3,7 +3,7 @@ import mongoose, { Schema, model, Model } from 'mongoose';
 
 const productSchema = new Schema(
   {
-    description: { type: String, required: true },
+    description: { type: String, required: true, default: '' },
     images: [{ type: String }],
     inStock: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
@@ -18,14 +18,15 @@ const productSchema = new Schema(
       },
     ],
     slug: { type: String, required: true, unique: true },
-    tags: [{ type: String, required: true }],
-    title: { type: String, required: true },
+    tags: [{ type: String }],
+    title: { type: String, required: true, default: '' },
     type: {
       type: String,
       enum: {
         values: ['shirts', 'pants', 'hoodies', 'hats'],
         message: '{VALUE} is not a supported type',
       },
+      default: 'shirts',
     },
     gender: {
       type: String,
@@ -33,12 +34,13 @@ const productSchema = new Schema(
         values: ['men', 'women', 'kid', 'unisex'],
         message: '{VALUE} is not a supported gender',
       },
+      default: 'woman',
     },
   },
   { timestamps: true }
 );
 
-productSchema.index({title: 'text', tags: 'text'})
+productSchema.index({ title: 'text', tags: 'text' });
 
 const Product: Model<IProduct> = mongoose.models.Product || model('Product', productSchema);
 

@@ -64,5 +64,28 @@ async function updateProduct(req: NextApiRequest, res: NextApiResponse<Data>) {
   }
 }
 async function addProduct(req: NextApiRequest, res: NextApiResponse<Data>) {
-  throw new Error('Function not implemented.');
+  const { images = [] } = req.body as IProduct;
+
+  if (images.length < 2) {
+    return res.status(400).json({ msg: 'A minimum of 2 images is necesary' });
+  }
+
+  try {
+    await db.connect();
+    const productInDb = await Product.findOne({ slug: req.body.slug });
+    if (productInDb) {
+      await db.disconnect();
+      return res.status(400).json({ msg: 'Slug already exists in Db' });
+    }
+
+    const product = new Product(req.body);
+    await product.save();
+    await db.disconnect();
+
+    res.status(201).json(product);
+  } catch (error) {
+    console.log(error);
+    await db.disconnect();
+    return res.status(400).json({ msg: 'Check server logs' });
+  }
 }
