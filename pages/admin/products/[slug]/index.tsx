@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { GetServerSideProps } from 'next';
 import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons-material';
@@ -25,6 +25,7 @@ import {
 import { AdminLayout } from '@/components';
 import { dbProducts } from '@/database';
 import { IProduct, ISize, IType } from '@/interfaces';
+import { tesloApi } from '@/api';
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats'];
 const validGender = ['men', 'women', 'kid', 'unisex'];
@@ -49,6 +50,8 @@ interface Props {
 }
 
 const ProductAdminPage: FC<Props> = ({ product }) => {
+  const [newTag, setNewTag] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const {
     register,
     handleSubmit,
@@ -74,6 +77,28 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
 
+  /*   //This was my way to implement the label submision when spacebar was pressed
+  useEffect(() => {
+    if (newTag.trimStart().toLocaleLowerCase().includes(' ')) {
+      const tags = getValues('tags');
+      setValue('tags', [...tags, newTag]);
+      setNewTag('');
+    }
+  }, [newTag, getValues, setValue]); */
+
+  const onNewTag = () => {
+    const newTagValue = newTag.trim().toLocaleLowerCase();
+    const tags = getValues('tags');
+
+    if (tags.includes(newTagValue)) {
+      setNewTag('');
+      return;
+    }
+
+    setValue('tags', [...tags, newTagValue], { shouldValidate: true });
+    setNewTag('');
+  };
+
   const onChangeSize = (size: ISize) => {
     const currentSizes = getValues('sizes');
 
@@ -88,10 +113,35 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     setValue('sizes', [...currentSizes, size], { shouldValidate: true });
   };
 
-  const onDeleteTag = (tag: string) => {};
+  const onDeleteTag = (tag: string) => {
+    const currentTags = getValues('tags');
+    setValue(
+      'tags',
+      currentTags.filter((t) => t !== tag),
+      { shouldValidate: true }
+    );
+  };
 
-  const onSubmit = (formData: FormData) => {
-    console.log(formData);
+  const onSubmit = async (formData: FormData) => {
+    if (formData.images.length < 2) return alert('Minimum 2 images required');
+    setIsSaving(true);
+
+    try {
+      const { data } = await tesloApi({
+        url: '/admin/products',
+        method: 'PUT',
+        data: formData,
+      });
+      if (!formData._id) {
+        //TODO: recargar navegador
+      } else {
+        setIsSaving(false);
+      }
+    } catch (error) {
+      console.log(error);
+
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -107,8 +157,9 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
             startIcon={<SaveOutlined />}
             sx={{ width: '150px' }}
             type='submit'
+            disabled={isSaving}
           >
-            Guardar
+            Save
           </Button>
         </Box>
 
@@ -252,6 +303,9 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               fullWidth
               sx={{ mb: 1 }}
               helperText='Press [spacebar] to add'
+              value={newTag}
+              onChange={({ target }) => setNewTag(target.value)}
+              onKeyUp={({ code }) => (code === 'Space' ? onNewTag() : undefined)}
             />
 
             <Box
@@ -264,7 +318,7 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               }}
               component='ul'
             >
-              {product.tags.map((tag) => {
+              {getValues('tags').map((tag) => {
                 return (
                   <Chip
                     key={tag}
