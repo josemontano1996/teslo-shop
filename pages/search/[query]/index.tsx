@@ -11,6 +11,7 @@ interface Props {
   query: string;
 }
 const SearchPage: NextPage<Props> = ({ products, foundProducts, query }) => {
+  console.log(products);
   return (
     <ShopLayout
       title={'Teslo-Shop - Search'}
