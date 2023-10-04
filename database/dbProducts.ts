@@ -11,6 +11,10 @@ export const getProductBySlug = async (slug: string): Promise<IProduct | null> =
     return null;
   }
 
+  product.images = product.images.map((image) => {
+    return image.includes('http') ? image : `${process.env.HOST_NAME}products/${image}`;
+  });
+
   //the JSON parse is used to serialize some data, for example dates and _id
   return JSON.parse(JSON.stringify(product));
 };
@@ -45,4 +49,4 @@ export const getAllProducts = async (): Promise<IProduct[]> => {
   await db.disconnect();
 
   return JSON.parse(JSON.stringify(products));
-}; 
+};

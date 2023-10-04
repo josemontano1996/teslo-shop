@@ -1,8 +1,11 @@
-import { db } from '@/database';
-import { IProduct } from '@/interfaces';
-import { Product } from '@/models';
-import { isValidObjectId } from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { isValidObjectId } from 'mongoose';
+import { db } from '@/database';
+import { Product } from '@/models';
+import { IProduct } from '@/interfaces';
+
+import { v2 as cloudinary } from 'cloudinary';
+cloudinary.config(process.env.CLOUDINARY_URL || '');
 
 type Data = { msg: string } | IProduct[] | IProduct;
 
@@ -39,7 +42,7 @@ async function updateProduct(req: NextApiRequest, res: NextApiResponse<Data>) {
     return res.status(400).json({ msg: 'A minimum of 2 images is necesary' });
   }
 
-  //TODO:
+
   try {
     await db.connect();
     const product = await Product.findById(_id);
@@ -48,7 +51,15 @@ async function updateProduct(req: NextApiRequest, res: NextApiResponse<Data>) {
       return res.status(400).json({ msg: 'There is no product with this id' });
     }
 
-    //TODO: eliminar fotos en Cloudinary
+    //Deleting photo from cloudinary
+    product.images.forEach(async (image) => {
+      if (!images.includes(image)) {
+        //delete from cloudinary
+        const [fileId, extension] = image.substring(image.lastIndexOf('/') + 1).split('.');
+
+        await cloudinary.uploader.destroy(fileId);
+      }
+    });
 
     const changedProduct = await product.updateOne(req.body);
 

@@ -138,13 +138,21 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
         formData.append('file', file);
 
         const { data } = await tesloApi.post<{ msg: string }>('/admin/upload', formData);
-        console.log(data);
+        setValue('images', [...getValues('images'), data.msg], { shouldValidate: true });
       }
     } catch (error) {
       console.log(error);
     }
 
     console.log(target.files);
+  };
+
+  const onDeleteImage = (img: string) => {
+    setValue(
+      'images',
+      getValues('images').filter((image) => image !== img),
+      { shouldValidate: true }
+    );
   };
 
   const onSubmit = async (formData: FormData) => {
@@ -209,8 +217,8 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
               label='Description'
               variant='filled'
               fullWidth
-              rows='5'
               multiline
+              rows='5'
               sx={{ mb: 1 }}
               {...register('description', {
                 required: 'This field is required',
@@ -381,20 +389,20 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                 onChange={onFilesSelected}
               />
 
-              <Chip label='Minimum 2 images required' color='error' variant='outlined' />
+              <Chip
+                label='Minimum 2 images required'
+                color='error'
+                variant='outlined'
+                sx={{ display: getValues('images').length <= 2 ? 'none' : 'flex' }}
+              />
 
               <Grid container spacing={2}>
-                {product.images.map((img) => (
+                {getValues('images').map((img) => (
                   <Grid item xs={4} sm={3} key={img}>
                     <Card>
-                      <CardMedia
-                        component='img'
-                        className='fadeIn'
-                        image={`/products/${img}`}
-                        alt={img}
-                      />
+                      <CardMedia component='img' className='fadeIn' image={img} alt={img} />
                       <CardActions>
-                        <Button fullWidth color='error'>
+                        <Button fullWidth color='error' onClick={() => onDeleteImage(img)}>
                           Delete
                         </Button>
                       </CardActions>
