@@ -12,7 +12,7 @@ At the bottom of this README you have the installation guide, which uses docker 
 
 ## Next.js
 
-In this proyect we use Next.js, we have used SSG, SWR, and in SSR where needed, to improve SEO results.
+In this proyect we use Next.js, we have used SSG, ISG, SWR, and in SSR where needed, to improve SEO results.
 
 ## Authentication
 
