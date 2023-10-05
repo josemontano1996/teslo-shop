@@ -31,7 +31,7 @@ import {
 import { AdminLayout } from '@/components';
 import { dbProducts } from '@/database';
 import { IProduct, ISize, IType } from '@/interfaces';
-import { tesloApi } from '@/api';
+import { tesloApi } from '@/axiosApi';
 import { Product } from '@/models';
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats'];

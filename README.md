@@ -6,7 +6,7 @@ This webpage is a full stack clothing e-commerce web application developed using
 
 If you would like to test all the standart user functionalities you can log in with the a prepopulated user using the email: 'user@user.com', and password: 123456. For security reasons admin account credentials are not given, but you can locally run the proyect and use the standart prepopulated admin account 'admin@admin.com' with a password of '123456'.
 
-At the bottom of this README you have the installation guide, which uses docker to makes things more simple, in 3 simple steps, plus configurationg your .env you can have the application running locally.
+At the bottom of this README you have the installation guide, which uses docker to make things more simple, in 3 simple steps, plus configurationg your .env you can have the application running locally.
 
 ## Next.js
 
@@ -58,6 +58,8 @@ Rename **.env.template** file to **.env**
 MONGO_URL=mongodb://localhost:27017/teslodb
 ```
 
+- Fill the rest of .env file with your credentials.
+
 - Rebuild Node modules and start developement server
 
 ```
@@ -73,7 +75,5 @@ Make an API call to:
 http://localhost:3000/api/seed
 ```
 
-## .env
-
-Fill the .env file with your credentials. The proyect is ready to be run locally.
+### The proyect is ready to be run locally!
 

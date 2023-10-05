@@ -9,7 +9,7 @@ import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { dbOrders } from '@/database';
 import { CartList, OrderSummary, PaymentStatusChip, ShopLayout } from '@/components';
 import { IOrder } from '@/interfaces';
-import { tesloApi } from '@/api';
+import { tesloApi } from '@/axiosApi';
 
 export type OrderResponseBody = {
   id: string;

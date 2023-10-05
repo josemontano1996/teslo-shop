@@ -2,7 +2,7 @@ import { FC, ReactNode, useEffect, useReducer, useContext } from 'react';
 import Cookie from 'js-cookie';
 import { CartContext, cartReducer } from './';
 import { ICartProduct, IOrder, IShippingAddress } from '@/interfaces';
-import { tesloApi } from '@/api';
+import { tesloApi } from '@/axiosApi';
 import axios from 'axios';
 
 export interface CartState {
