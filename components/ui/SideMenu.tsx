@@ -80,7 +80,7 @@ export const SideMenu = () => {
                 <ListItemIcon>
                   <AccountCircleOutlined />
                 </ListItemIcon>
-                <ListItemText primary={'Account'} />
+                <ListItemText primary={'Account (not implemented)'} />
               </ListItemButton>
 
               <ListItemButton onClick={() => navigateTo('/orders/history')}>
