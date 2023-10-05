@@ -2,7 +2,12 @@ import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { GetServerSideProps } from 'next';
-import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons-material';
+import {
+  DeleteOutline,
+  DriveFileRenameOutline,
+  SaveOutlined,
+  UploadOutlined,
+} from '@mui/icons-material';
 
 import {
   Box,
@@ -155,6 +160,18 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     );
   };
 
+  const onDeleteProduct = async () => {
+    setIsSaving(true);
+    const _id = getValues('_id');
+    try {
+      await tesloApi.delete(`/admin/products/${_id}`);
+      router.replace('/admin/products');
+    } catch (error) {
+      console.log(error);
+      setIsSaving(false);
+    }
+  };
+
   const onSubmit = async (formData: FormData) => {
     if (formData.images.length < 2) return alert('Minimum 2 images required');
     setIsSaving(true);
@@ -186,6 +203,16 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box display='flex' justifyContent='end' sx={{ mb: 1 }}>
+          <Button
+            color='error'
+            startIcon={<DeleteOutline />}
+            type='button'
+            sx={{ mr: 1 }}
+            onClick={onDeleteProduct}
+            disabled={isSaving}
+          >
+            Delete product
+          </Button>
           <Button
             color='secondary'
             startIcon={<SaveOutlined />}

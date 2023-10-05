@@ -17,7 +17,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
       return updateProduct(req, res);
     case 'POST':
       return addProduct(req, res);
-
     default:
       return res.status(400).json({ msg: 'Bad request' });
   }
